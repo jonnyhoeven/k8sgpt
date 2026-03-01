@@ -1,3 +1,6 @@
-Color: Red
-Status: 🔴 Critical Alert
-Report: The cluster is in a high-risk state with 12 identified issues. Critical security vulnerabilities include plain-text credentials, containers running as root with dangerous capabilities, and overly permissive RBAC roles. Operational failures include broken service selectors, invalid container images (ImagePullBackOff), and unfulfillable storage requests due to non-existent storage classes. Immediate remediation is required to secure and stabilize the environment.
+Color: ||Red||
+Alert: ||true||
+Status: ||🚨 Critical Failure||
+Report: ||The test-cluster environment is currently in a critical state due to multiple high-severity security vulnerabilities and operational misconfigurations. The audit revealed that sensitive credentials, including database passwords and API keys, are stored in plain text, while applications are running with excessive privileges such as root access and dangerous network capabilities. Furthermore, an overly permissive RBAC policy allows service accounts to read all namespace secrets, posing a significant risk of data exfiltration and lateral movement within the cluster.
+
+From an operational perspective, the cluster is experiencing functional degradation with 12 distinct issues, including broken service endpoints and unfulfillable storage requests. Key application services are currently unreachable due to selector mismatches, and persistent volume claims are failing due to references to non-existent storage classes. Immediate remediation of the security posture and resource configurations is mandatory to restore environment integrity and service availability.||

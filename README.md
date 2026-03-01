@@ -8,8 +8,7 @@ Why implement this:
 - Knowledge Transfer: Provides human-readable context for complex CrashLoopBackOff or Pending states.
 - Daily Health Checks: Automated daily scans via GitLab ensure our dev clusters (Sonarqube, fakesmtp, etc.) don't drift
   into "unstable" territory.
-- Privacy First: All AI interactions use --anonymize to ensure no sensitive infrastructure data or application logs are
-  transmitted outside our control.
+- Privacy First: Ensure no sensitive logs and infrastructure names (using --anonymize) are exposed to api's
 
 The "Red-to-Green" Dashboard
 
@@ -107,7 +106,7 @@ assessment.
 Use the filters to ask specific questions about your incident:
 
 ```bash
-k8sgpt analyze --explain --filter=Ingress --anonymize
+k8sgpt analyze --explain --filter=Ingress
 ```
 
 ### The "Fix-it" Loop (Remediation Phase)
@@ -121,7 +120,7 @@ Based on the AI suggestions, apply the hardened configuration:
 ### Use the Explain feature:
 
 ```bash
-k8sgpt analyse --explain --anonymize
+k8sgpt analyse --explain
 ```
 
 ### You can drill down with followup questions
@@ -129,7 +128,7 @@ k8sgpt analyse --explain --anonymize
 Just enable interactive mode
 
 ```bash
-k8sgpt analyse --explain --interactive --anonymize
+k8sgpt analyse --explain --interactive
 ```
 
 Suggested prompts for the demo:
@@ -143,30 +142,34 @@ Suggested prompts for the demo:
 Generate the report
 
 ```bash
-k8sgpt analyze --anonymize --output json | tee  test-cluster-report.json
+k8sgpt analyze --output json | tee  test-cluster-report.json
 ```
 
 Example: [test-cluster-report.json](test-cluster-report.json)
 
-### Gemini CLI can fix some issues
+### Summarized:
 
-Install gemini or claude cli
+We can use [test cluster manifest](manifests/test-cluster.yaml) and [cluster report](test-cluster-report.json) to
+summarize/fix most issues in this demo cluster.
+
+Install gemini or claude cli:
 
 ```bash
 brew install gemini-cli
-#login
+#Setup login/API-Key
 gemini
 ```
 
-Get a short cluster status report based on the `k8sgpt` issues
+Get a short cluster status report on the `k8sgpt` cluster report and manifests in the test cluster.
 
 ```bash
 gemini query "@manifests/test-cluster.yaml @test-cluster-report.json
-I am providing a k8sgpt report and the associated manifests write, a short readable report
+I am providing a k8sgpt report and the associated manifests. Write a short 2 paragraph management readable report.
 Reply in the following format:
 Color: ||Cluster Color||
+Alert: ||Send Alert to ops team (true/false)||
 Status: ||Cluster Unicode status||
-Report: ||Short report of cluster state||" | tee test-cluster-status.txt
+Report: ||Short report of cluster state||"  | tee test-cluster-status.txt
 ```
 
 We get concise and short feedback about our cluster and deployments.
@@ -174,15 +177,23 @@ We get concise and short feedback about our cluster and deployments.
 ```text
 Color: Red
 Status: 🔴
-Report: The cluster is in a critical state with 12 detected issues. Major concerns include severe security vulnerabilities 
-in the `unsafe-app` deployment (plaintext secrets, root execution, and dangerous kernel capabilities) and overly permissive 
-RBAC for `risky-sa`. Additionally, several resources are broken: `unsafe-service` has no endpoints due to a selector mismatch,
-`orphaned-pvc` is pending a non-existent storage class, and `broken-pod` is failing due to an invalid image tag.
-```
+Report: The cluster is currently in a high-risk state, exhibiting significant security vulnerabilities and configuration
+failures. Critical issues include the storage of sensitive credentials in plain text, containers running with elevated
+root privileges, and overly permissive RBAC roles that allow unauthorized access to namespace secrets. These
+vulnerabilities represent a severe security risk that could lead to data exposure or cluster compromise.
 
+Operational stability is also compromised, with multiple services failing to function correctly. A primary application
+service is unreachable due to selector mismatches, and storage provisioning is failing because of references to
+non-existent infrastructure components. Immediate intervention is required to rotate exposed secrets, tighten security
+policies, and correct manifest configurations to restore service availability and maintain compliance.
+Alert: true
+```
 Example: [test-cluster-status.txt](test-cluster-status.txt)
 
-Or start interactive mode with the agent features:
+
+### Use interactively agent
+
+Query the agent interactively and triage/resolve issues:
 
 ```bash
 gemini -i "@manifests/test-cluster.yaml @test-cluster-report.json 
@@ -193,7 +204,17 @@ I am providing a k8sgpt report and the associated manifests.
 4. Ask me which one I want to fix first."
 ```
 
-The devops cycle:
+### Vibe coding vicious cycle
+
+Please don't use these tools like this:
+
+```bash
+gemini -i "@manifests/test-cluster.yaml @test-cluster-report.json 
+I am providing a k8sgpt report and the associated manifests. 
+Fix all issues!"
+```
+
+Keep the dev-ops cycle:
 
 - Fix one issue at a time
 - Ask the model of possible solutions/implications

@@ -1,0 +1,3 @@
+Color: Red
+Status: 🔴 Critical Alert
+Report: The cluster is in a high-risk state with 12 identified issues. Critical security vulnerabilities include plain-text credentials, containers running as root with dangerous capabilities, and overly permissive RBAC roles. Operational failures include broken service selectors, invalid container images (ImagePullBackOff), and unfulfillable storage requests due to non-existent storage classes. Immediate remediation is required to secure and stabilize the environment.

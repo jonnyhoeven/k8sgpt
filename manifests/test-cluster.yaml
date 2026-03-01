@@ -1,0 +1,119 @@
+---
+# Deployment with Security Issues
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unsafe-app
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: unsafe-app
+  template:
+    metadata:
+      labels:
+        app: unsafe-app
+    spec:
+      serviceAccountName: risky-sa # Security Issue: Overly permissive SA
+      containers:
+        - name: nginx
+          image: nginx:latest
+          # Security Issue: Plain text secrets
+          env:
+            - name: DB_PASSWORD
+              value: "SuperSecretPassword123!"
+            - name: API_KEY
+              value: "12345-abcde-important-key"
+          # Security Issue: Running with dangerous capabilities (Subtle)
+          securityContext:
+            capabilities:
+              add: [ "NET_ADMIN", "SYS_TIME" ] # Can sniff traffic or change time
+            runAsUser: 0  # Running as root
+          ports:
+            - containerPort: 80
+          # Security Issue: Missing liveness and readiness probes
+          # livenessProbe: ...
+---
+# Service with Broken Selector
+apiVersion: v1
+kind: Service
+metadata:
+  name: unsafe-service
+  namespace: default
+spec:
+  selector:
+    # Security Issue: Selector doesn't match any pods
+    app: non-existent-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+
+---
+# PersistentVolumeClaim that can't be fulfilled
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: orphaned-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      # Security Issue: Requesting huge storage that may not be available
+      storage: 100Gi
+  # Security Issue: Requesting a non-existent storage class
+  storageClassName: non-existent-storage-class
+
+---
+# RBAC Misconfiguration (The "Silent Killer")
+# This allows the pod to read all secrets in the namespace
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: risky-sa
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: secret-reader
+  namespace: default
+rules:
+  - apiGroups: [ "" ]
+    resources: [ "secrets" ]
+    verbs: [ "get", "list", "watch" ]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: risky-sa-bind
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: risky-sa
+    namespace: default
+roleRef:
+  kind: Role
+  name: secret-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: broken-pod
+  namespace: default
+spec:
+  containers:
+    - name: broken-pod
+      image: nginx:1.a.b.c # ImagePullBackOff
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 81 # Port mismatch
+        initialDelaySeconds: 3
+        periodSeconds: 3

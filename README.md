@@ -217,7 +217,7 @@ Fix all issues!"
 Keep the dev-ops cycle:
 
 - Fix one issue at a time
-- Ask the model of possible solutions/implications
+- Ask the model for possible solutions/implications
 - Request a fix for specific issues
 - Review the changes
 - Commit

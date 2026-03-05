@@ -191,7 +191,7 @@ Alert: true
 Example: [test-cluster-status.txt](test-cluster-status.txt)
 
 
-### Use interactively agent
+### Use the interactive chat agent
 
 Query the agent interactively and triage/resolve issues:
 

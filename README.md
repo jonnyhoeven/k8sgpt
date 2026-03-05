@@ -6,8 +6,7 @@
 Why implement this:
 
 - Knowledge Transfer: Provides human-readable context for complex CrashLoopBackOff or Pending states.
-- Daily Health Checks: Automated daily scans via Git ensure our dev clusters (Sonarqube, fakesmtp, etc.) don't drift
-  into "unstable" territory.
+- Daily Health Checks: Automated daily scans via Git ensure our dev clusters don't drift into "unstable" territory.
 - Privacy First: Ensure no sensitive logs and infrastructure names (using --anonymize) are exposed to api's
 
 The "Red-to-Green" Dashboard

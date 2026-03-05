@@ -6,7 +6,7 @@
 Why implement this:
 
 - Knowledge Transfer: Provides human-readable context for complex CrashLoopBackOff or Pending states.
-- Daily Health Checks: Automated daily scans via GitLab ensure our dev clusters (Sonarqube, fakesmtp, etc.) don't drift
+- Daily Health Checks: Automated daily scans via Git ensure our dev clusters (Sonarqube, fakesmtp, etc.) don't drift
   into "unstable" territory.
 - Privacy First: Ensure no sensitive logs and infrastructure names (using --anonymize) are exposed to api's
 
@@ -14,7 +14,7 @@ The "Red-to-Green" Dashboard
 
 Instead of complex Grafana dashboards that require manual monitoring, we use a Push Model:
 
-- Detect: Daily GitLab CI scan using `k8sgpt`.
+- Detect: Daily Git CI scan using `k8sgpt`.
 - Triage: Claude summarizes the impact (Color-coded: Red/Yellow/Green).
 - Alert: A concise summary is sent to the team (Slack/Teams).
 - Remediate: Use agentic tools to map the error directly back to our YAML manifests for a one-command suggested fix.

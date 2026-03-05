@@ -1,7 +1,7 @@
 # k8sgpt: The Dev-Ops Bridge
 
-- Mission: To empower every developer—regardless of Kubernetes experience—to identify and resolve kubernetes deployment
-  or cluster issues proactively.
+To empower every developer—regardless of Kubernetes experience—to identify and resolve kubernetes deployment
+or cluster issues proactively.
 
 Why implement this:
 
